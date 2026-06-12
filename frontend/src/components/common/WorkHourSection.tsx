@@ -1,7 +1,7 @@
 import { Button, Popconfirm, Space, Statistic, Table, Tag, message } from "antd";
 import { ClockCircleOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
-import { useState } from "react";
+import { useState, type ReactElement, type ReactNode } from "react";
 import type { WorkHour } from "../../types";
 import * as workHourApi from "../../api/work-hour";
 import { useCaseStore } from "../../stores/case";
@@ -16,12 +16,12 @@ type Props = {
   canEdit: boolean;
 };
 
-export function WorkHourSection({ caseId, caseStatus, workHours, canEdit }: Props) {
+export function WorkHourSection({ caseId, caseStatus, workHours, canEdit }: Props): ReactElement {
   const { fetchCase } = useCaseStore();
-  const [formOpen, setFormOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState<boolean>(false);
 
-  const isClosed = caseStatus === "closed" || caseStatus === "archived";
-  const totalHours = workHours.reduce((acc, w) => acc + Number(w.hours), 0);
+  const isClosed: boolean = caseStatus === "closed" || caseStatus === "archived";
+  const totalHours: number = workHours.reduce((acc: number, w: WorkHour): number => acc + Number(w.hours), 0);
 
   const columns: ColumnsType<WorkHour> = [
     {
@@ -29,14 +29,14 @@ export function WorkHourSection({ caseId, caseStatus, workHours, canEdit }: Prop
       dataIndex: "workDate",
       key: "workDate",
       width: 120,
-      render: (val) => formatDate(val)
+      render: (val: string): string => formatDate(val)
     },
     {
       title: "时长（小时）",
       dataIndex: "hours",
       key: "hours",
       width: 110,
-      render: (val) => (
+      render: (val: string | number): ReactNode => (
         <Tag color="blue" icon={<ClockCircleOutlined />}>
           {Number(val).toFixed(1)} h
         </Tag>
@@ -58,14 +58,14 @@ export function WorkHourSection({ caseId, caseStatus, workHours, canEdit }: Prop
       title: "操作",
       key: "action",
       width: 80,
-      render: (_, record) =>
+      render: (_: unknown, record: WorkHour): ReactNode =>
         canEdit && !isClosed ? (
           <Popconfirm
             title="删除工时记录"
             description="确定要删除该工时记录吗？"
             okText="删除"
             cancelText="取消"
-            onConfirm={async () => {
+            onConfirm={async (): Promise<void> => {
               await workHourApi.deleteWorkHour(record.id);
               message.success("工时记录已删除");
               void fetchCase(caseId);
@@ -91,7 +91,7 @@ export function WorkHourSection({ caseId, caseStatus, workHours, canEdit }: Prop
           <Button
             type="primary"
             icon={<PlusOutlined />}
-            onClick={() => setFormOpen(true)}
+            onClick={(): void => setFormOpen(true)}
             disabled={isClosed}
           >
             登记工时
@@ -111,7 +111,7 @@ export function WorkHourSection({ caseId, caseStatus, workHours, canEdit }: Prop
         pagination={{ pageSize: 5, hideOnSinglePage: true }}
         locale={{ emptyText: "暂无工时记录" }}
       />
-      <WorkHourFormModal open={formOpen} caseId={caseId} onClose={() => setFormOpen(false)} />
+      <WorkHourFormModal open={formOpen} caseId={caseId} onClose={(): void => setFormOpen(false)} />
     </section>
   );
 }

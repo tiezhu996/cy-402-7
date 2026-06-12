@@ -1,4 +1,4 @@
-import { CaseStatus } from "@prisma/client";
+import { CaseStatus, type Prisma, type WorkHour } from "@prisma/client";
 import { prisma } from "../utils/prisma";
 import { HttpError } from "../utils/http-error";
 
@@ -9,12 +9,21 @@ export type WorkHourFilters = {
   endDate?: string;
 };
 
+export type WorkHourSummary = {
+  totalHours: number;
+  recordCount: number;
+};
+
 const workHourInclude = {
   lawyer: { select: { id: true, name: true, email: true } },
   case: { select: { id: true, caseNo: true, title: true, status: true } }
-};
+} as const;
 
-export async function listWorkHours(filters: WorkHourFilters) {
+export type WorkHourWithRelations = Prisma.WorkHourGetPayload<{
+  include: typeof workHourInclude;
+}>;
+
+export async function listWorkHours(filters: WorkHourFilters): Promise<WorkHourWithRelations[]> {
   return prisma.workHour.findMany({
     where: {
       caseId: filters.caseId,
@@ -32,7 +41,7 @@ export async function listWorkHours(filters: WorkHourFilters) {
   });
 }
 
-export async function getWorkHour(id: string) {
+export async function getWorkHour(id: string): Promise<WorkHourWithRelations | null> {
   return prisma.workHour.findUnique({
     where: { id },
     include: workHourInclude
@@ -45,7 +54,7 @@ export async function createWorkHour(input: {
   description: string;
   caseId: string;
   lawyerId: string;
-}) {
+}): Promise<WorkHourWithRelations> {
   const caseRecord = await prisma.case.findUnique({
     where: { id: input.caseId },
     select: { status: true }
@@ -69,7 +78,7 @@ export async function createWorkHour(input: {
   });
 }
 
-export async function deleteWorkHour(id: string) {
+export async function deleteWorkHour(id: string): Promise<WorkHour> {
   const record = await prisma.workHour.findUnique({
     where: { id },
     include: { case: { select: { status: true } } }
@@ -83,7 +92,7 @@ export async function deleteWorkHour(id: string) {
   return prisma.workHour.delete({ where: { id } });
 }
 
-export async function getCaseWorkHourSummary(caseId: string) {
+export async function getCaseWorkHourSummary(caseId: string): Promise<WorkHourSummary> {
   const records = await prisma.workHour.findMany({
     where: { caseId },
     select: { hours: true }

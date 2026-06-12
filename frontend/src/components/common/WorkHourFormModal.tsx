@@ -1,6 +1,6 @@
 import { DatePicker, Form, Input, InputNumber, Modal, Select, message } from "antd";
 import type { Dayjs } from "dayjs";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactElement } from "react";
 import type { User } from "../../types";
 import * as workHourApi from "../../api/work-hour";
 import { useUserStore } from "../../stores/user";
@@ -19,13 +19,13 @@ type Props = {
   onClose: () => void;
 };
 
-export function WorkHourFormModal({ open, caseId, onClose }: Props) {
+export function WorkHourFormModal({ open, caseId, onClose }: Props): ReactElement {
   const { users, fetchUsers, currentUser } = useUserStore();
   const { fetchCase } = useCaseStore();
   const [form] = Form.useForm<FormValues>();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  useEffect(() => {
+  useEffect((): void => {
     if (open && users.length === 0) {
       void fetchUsers();
     }
@@ -38,12 +38,12 @@ export function WorkHourFormModal({ open, caseId, onClose }: Props) {
   }, [open, users.length, fetchUsers, currentUser, form]);
 
   const lawyerOptions: User[] = users.filter(
-    (u) => u.primaryRole === "lawyer" || u.primaryRole === "admin"
+    (u: User): boolean => u.primaryRole === "lawyer" || u.primaryRole === "admin"
   );
 
-  async function handleOk() {
+  async function handleOk(): Promise<void> {
     try {
-      const values = await form.validateFields();
+      const values: FormValues = await form.validateFields();
       setLoading(true);
       await workHourApi.createWorkHour({
         caseId,
@@ -57,7 +57,7 @@ export function WorkHourFormModal({ open, caseId, onClose }: Props) {
       onClose();
       form.resetFields();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "工时登记失败";
+      const msg: string = err instanceof Error ? err.message : "工时登记失败";
       message.error(msg);
     } finally {
       setLoading(false);
@@ -110,7 +110,7 @@ export function WorkHourFormModal({ open, caseId, onClose }: Props) {
         >
           <Select
             placeholder="请选择律师"
-            options={lawyerOptions.map((u) => ({ label: u.name, value: u.id }))}
+            options={lawyerOptions.map((u: User) => ({ label: u.name, value: u.id }))}
             showSearch
             optionFilterProp="label"
           />
