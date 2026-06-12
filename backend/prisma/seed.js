@@ -12,6 +12,8 @@ const permissions = [
   ["document:write", "上传和删除文档"],
   ["billing:read", "查看账单"],
   ["billing:write", "创建和更新账单"],
+  ["workhour:read", "查看工时记录"],
+  ["workhour:write", "登记和删除工时记录"],
   ["user:read", "查看用户"],
   ["audit:read", "查看审计日志"],
   ["auth:manage", "管理用户和权限"]
@@ -28,9 +30,11 @@ const rolePermissions = {
     "document:write",
     "billing:read",
     "billing:write",
+    "workhour:read",
+    "workhour:write",
     "user:read"
   ],
-  assistant: ["case:read", "client:read", "document:read", "document:write", "billing:read", "user:read"]
+  assistant: ["case:read", "client:read", "document:read", "document:write", "billing:read", "workhour:read", "user:read"]
 };
 
 async function main() {
@@ -230,6 +234,57 @@ async function main() {
       invoiceInfo: { title: "顾清远" }
     }
   });
+
+  const workHours = [
+    {
+      id: "00000000-0000-0000-0000-000000000201",
+      workDate: new Date("2026-05-03T00:00:00.000Z"),
+      hours: "4.5",
+      description: "审阅合同及补充协议，梳理案件争议焦点",
+      caseId: caseA.id,
+      lawyerId: lawyer.id
+    },
+    {
+      id: "00000000-0000-0000-0000-000000000202",
+      workDate: new Date("2026-05-06T00:00:00.000Z"),
+      hours: "2.0",
+      description: "与客户沟通案件进展及补充证据清单",
+      caseId: caseA.id,
+      lawyerId: lawyer.id
+    },
+    {
+      id: "00000000-0000-0000-0000-000000000203",
+      workDate: new Date("2026-05-10T00:00:00.000Z"),
+      hours: "3.5",
+      description: "起草起诉状初稿及证据目录",
+      caseId: caseA.id,
+      lawyerId: assistant.id
+    },
+    {
+      id: "00000000-0000-0000-0000-000000000204",
+      workDate: new Date("2026-05-16T00:00:00.000Z"),
+      hours: "3.0",
+      description: "梳理顾清远劳动合同解除相关证据材料",
+      caseId: caseB.id,
+      lawyerId: lawyer.id
+    },
+    {
+      id: "00000000-0000-0000-0000-000000000205",
+      workDate: new Date("2026-05-20T00:00:00.000Z"),
+      hours: "2.5",
+      description: "整理加班工资计算明细及未休年假工资清单",
+      caseId: caseB.id,
+      lawyerId: assistant.id
+    }
+  ];
+
+  for (const wh of workHours) {
+    await prisma.workHour.upsert({
+      where: { id: wh.id },
+      update: {},
+      create: wh
+    });
+  }
 }
 
 main()

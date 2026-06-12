@@ -6,14 +6,17 @@ import { AmountSummary } from "../components/common/AmountSummary";
 import { DocumentList } from "../components/common/DocumentList";
 import { StatusBadge } from "../components/common/StatusBadge";
 import { TimelineItem } from "../components/common/TimelineItem";
+import { WorkHourSection } from "../components/common/WorkHourSection";
 import { PermissionGate } from "../directives/permission";
 import { useCaseStore } from "../stores/case";
+import { useUserStore } from "../stores/user";
 import { CaseTypeLabels } from "../types/enums";
 import { formatDate, formatMoney } from "../utils/format";
 
 export function CaseDetailPage() {
   const { id } = useParams();
   const { selectedCase, fetchCase } = useCaseStore();
+  const { hasPermission } = useUserStore();
 
   useEffect(() => {
     if (id) void fetchCase(id);
@@ -74,6 +77,13 @@ export function CaseDetailPage() {
 
       <div className="work-grid" style={{ marginTop: 18 }}>
         <section className="work-band">
+          <WorkHourSection
+            caseId={selectedCase.id}
+            caseStatus={selectedCase.status}
+            workHours={selectedCase.workHours ?? []}
+            canEdit={hasPermission("workhour:write")}
+          />
+          <Divider style={{ margin: "24px 0 12px" }} />
           <Typography.Title level={4}>文档归档</Typography.Title>
           <DocumentList documents={selectedCase.documents ?? []} onDelete={removeDocument} />
           <Divider />

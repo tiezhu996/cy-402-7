@@ -16,7 +16,11 @@ const caseInclude = {
     include: { user: { select: { id: true, name: true, email: true, primaryRole: true } } }
   },
   documents: { include: { uploader: { select: { id: true, name: true } } }, orderBy: { uploadedAt: "desc" as const } },
-  billings: { orderBy: { createdAt: "desc" as const } }
+  billings: { orderBy: { createdAt: "desc" as const } },
+  workHours: {
+    include: { lawyer: { select: { id: true, name: true } } },
+    orderBy: { workDate: "desc" as const }
+  }
 };
 
 export async function listCases(filters: CaseFilters) {

@@ -106,6 +106,7 @@ model User {
   mainCases         Case[]             @relation("MainLawyerCases")
   collaboratedCases CaseCollaborator[]
   documents         Document[]
+  workHours         WorkHour[]
   auditLogs         AuditLog[]         @relation("AuditActor")
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
@@ -145,6 +146,7 @@ model Case {
   collaborators  CaseCollaborator[]
   documents      Document[]
   billings       Billing[]
+  workHours      WorkHour[]
   createdAt      DateTime           @default(now())
   updatedAt      DateTime           @updatedAt
 
@@ -208,5 +210,22 @@ model AuditLog {
 
   @@index([targetEntity, createdAt])
   @@map("audit_logs")
+}
+
+model WorkHour {
+  id          String   @id @default(uuid())
+  workDate    DateTime
+  hours       Decimal  @db.Decimal(5, 2)
+  description String
+  caseId      String
+  lawyerId    String
+  case        Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  lawyer      User     @relation(fields: [lawyerId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([caseId, workDate])
+  @@index([lawyerId, workDate])
+  @@map("work_hours")
 }
 

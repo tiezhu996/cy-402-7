@@ -9,6 +9,7 @@ import caseRoutes from "./routes/case";
 import clientRoutes from "./routes/client";
 import documentRoutes from "./routes/document";
 import userRoutes from "./routes/user";
+import workHourRoutes from "./routes/work-hour";
 import { errorHandler } from "./middlewares/error-handler.middleware";
 
 export const app = express();
@@ -37,6 +38,7 @@ app.use("/api/cases", caseRoutes);
 app.use("/api/documents", documentRoutes);
 app.use("/api/billing", billingRoutes);
 app.use("/api/audit-logs", auditLogRoutes);
+app.use("/api/work-hours", workHourRoutes);
 
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
@@ -45,5 +47,6 @@ app.use("/cases", caseRoutes);
 app.use("/documents", documentRoutes);
 app.use("/billing", billingRoutes);
 app.use("/audit-logs", auditLogRoutes);
+app.use("/work-hours", workHourRoutes);
 
 app.use(errorHandler);

@@ -47,6 +47,7 @@ export type CaseRecord = {
   collaborators?: Array<{ user: User }>;
   documents?: DocumentRecord[];
   billings?: Billing[];
+  workHours?: WorkHour[];
   createdAt: string;
   updatedAt: string;
 };
@@ -94,5 +95,23 @@ export type AuditLog = {
   changes: Record<string, unknown>;
   ip?: string | null;
   createdAt: string;
+};
+
+export type WorkHour = {
+  id: string;
+  workDate: string;
+  hours: string | number;
+  description: string;
+  caseId: string;
+  lawyerId: string;
+  case?: Pick<CaseRecord, "id" | "caseNo" | "title" | "status">;
+  lawyer?: Pick<User, "id" | "name" | "email">;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type WorkHourSummary = {
+  totalHours: number;
+  recordCount: number;
 };
 
